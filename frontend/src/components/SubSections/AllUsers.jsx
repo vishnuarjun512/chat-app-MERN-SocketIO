@@ -19,9 +19,9 @@ const AllUsers = ({ setAllUsers, friends, setFriends, allUsers }) => {
   };
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-800 text-center p-3 rounded-lg border-2">
-        Make Friends here
+    <div className="bg-[#31304D] h-screen">
+      <h1 className="text-2xl select-none font-bold text-white text-center p-3 rounded-lg border-2">
+        Add Friends
       </h1>
       <div className="mt-4">
         {allUsers.map(
@@ -29,16 +29,17 @@ const AllUsers = ({ setAllUsers, friends, setFriends, allUsers }) => {
             user._id !== userId && (
               <div
                 key={index}
-                className="w-full cursor-pointer p-2 hover:bg-gray-400 rounded-lg flex justify-between items-center px-10"
+                className="w-full cursor-pointer p-2 hover:bg-[#3e3d60] group select-none rounded-lg flex justify-between items-center px-8"
               >
-                <p className="text-xl font-semibold uppercase">
+                <p className="text-xl font-semibold text-gray-400 group-hover:text-black">
                   {user.username}
                 </p>
+
                 <button
                   onClick={() => {
                     makeConversation(user._id);
                   }}
-                  className="p-1 bg-blue-300 rounded-lg hover:scale-110"
+                  className="p-1 bg-[#31304D] group-hover:bg-[#3e3d60] text-white rounded-lg hover:scale-110"
                 >
                   <IoIosAddCircle size={25} />
                 </button>

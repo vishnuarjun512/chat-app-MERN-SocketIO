@@ -197,7 +197,7 @@ const LoginRegister = () => {
             <div className="toggle-pannel toggle-left">
               <h1>Welcome back!</h1>
               <p>Enter your personal details to use all of the site features</p>
-              <button className="hidden" id="login">
+              <button className="" id="login">
                 Login
               </button>
             </div>
@@ -207,7 +207,7 @@ const LoginRegister = () => {
                 Register with your personal details to use all of the site
                 features
               </p>
-              <button className="hidden" id="register">
+              <button className="" id="register">
                 Register
               </button>
             </div>

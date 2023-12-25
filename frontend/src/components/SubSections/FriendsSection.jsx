@@ -9,15 +9,19 @@ const FriendsSection = ({
   selectedUser,
   setSelectedUser,
   activeUsers,
+  setAllUsers,
 }) => {
   const deleteConversation = async (conversation) => {
     const res = await axios.post(`api/conversation/deleteConversation`, {
       conversationId: conversation._id,
     });
-
+    console.log(conversation.members[0]._id);
     if (!res.data.error) {
       setFriends((prevFriends) =>
         prevFriends.filter((friend) => friend._id !== conversation._id)
+      );
+      setAllUsers((prev) =>
+        prev.filter((user) => user._id !== conversation.members[0]._id)
       );
     }
   };

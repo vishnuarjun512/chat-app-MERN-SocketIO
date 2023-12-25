@@ -27,11 +27,8 @@ export const getUsers = async (req, res, next) => {
   try {
     const friends = await User.find();
     const data = friends.map((friend) => {
-      return {
-        username: friend.username,
-        _id: friend._id,
-        email: friend.email,
-      };
+      const { password: pass, ...rest } = friend._doc;
+      return rest;
     });
     res.status(200).json({ data });
   } catch (error) {

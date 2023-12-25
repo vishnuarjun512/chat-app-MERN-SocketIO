@@ -7,8 +7,6 @@ import conversationRouter from "./routes/conversation.router.js";
 import cookieparser from "cookie-parser";
 import { createServer } from "http";
 
-import jwt from "jsonwebtoken";
-
 dotenv.config();
 
 const app = express();

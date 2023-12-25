@@ -54,6 +54,18 @@ const Dashboard = () => {
   }, [messages]);
 
   useEffect(() => {
+    // Use Effect when USERID is retrieved from the Redux
+    const getFriends = async () => {
+      const res1 = await axios.get(`api/conversation/${userId}`);
+      socket.emit("getUsers", res1.data.findUsers);
+      setFriends(res1.data.findUsers);
+    };
+    if (userId) {
+      getFriends();
+    }
+  }, [userId]);
+
+  useEffect(() => {
     const checkUser = async () => {
       const res = await axios.get("api/user/profile");
       if (!res.data.error) {
@@ -64,30 +76,22 @@ const Dashboard = () => {
     };
     checkUser();
 
-    const getFriends = async () => {
-      const res1 = await axios.get(`api/conversation/${userId}`);
-      socket.emit("getUsers", res1.data.findUsers);
-      setFriends(res1.data.findUsers);
-    };
-
     const getAllUsers = async () => {
       const res2 = await axios.get(`api/user/getUsers`);
+      // console.log("Gettings Users");
 
       const AllUsers = res2.data.data;
-      // Assuming friends array has an array of user IDs in the 'members' property
-      const friendUserIds = friends.flatMap((friend) => friend.members);
 
-      // Filter out users who are already in friends array
-      const filteredAllUsers = AllUsers.filter(
-        (user) => !friendUserIds.includes(user._id)
+      const conversationUserIds = friends.flatMap((conversation) => {
+        return conversation.members.map((member) => member._id);
+      });
+
+      const nonConversationUsers = AllUsers.filter(
+        (user) => !conversationUserIds.includes(user._id)
       );
 
-      setAllUsers(filteredAllUsers);
+      setAllUsers(nonConversationUsers);
     };
-
-    if (userId) {
-      getFriends();
-    }
     getAllUsers();
 
     if (selectedUser) {
@@ -99,7 +103,7 @@ const Dashboard = () => {
       };
       getMessages();
     }
-  }, [userId, selectedUser]);
+  }, [friends[0], selectedUser]);
 
   const handleSignout = async () => {
     const res = await axios.get(`api/user/signout`);
@@ -152,18 +156,21 @@ const Dashboard = () => {
           setFriends={setFriends}
           selectedUser={selectedUser}
           setSelectedUser={setSelectedUser}
+          setAllUsers={setAllUsers}
         />
       </div>
 
       <div className="w-4/5 md:w-3/5 bg-gray-500 h-screen flex flex-col">
-        <div className="flex justify-between p-3">
-          <p className="text-3xl p-3">Welcome {username}</p>
+        <div className="flex justify-between items-center p-2">
+          <p className="text-3xl p-3 select-none font-bold">
+            Welcome <span className="text-white">{username}</span>
+          </p>
           <button
             onClick={() => {
               dispatch(resetUser());
               handleSignout();
             }}
-            className="bg-blue-500 w-fit rounded-lg p-3 hover:bg-blue-400 hover:text-white"
+            className="bg-blue-500 w-fit h-fit rounded-lg select-none p-3 hover:bg-blue-400 hover:text-white"
           >
             Signout
           </button>
@@ -183,7 +190,7 @@ const Dashboard = () => {
                   hour = time.getHours();
                   minute =
                     time.getMinutes() < 10
-                      ? `0+${time.getMinutes()}`
+                      ? `0${time.getMinutes()}`
                       : time.getMinutes();
                   ampm = hour >= 12 ? "PM" : "AM";
                   formattedHours = hour % 12 || 12;
@@ -193,23 +200,25 @@ const Dashboard = () => {
                       <div
                         className={`${
                           m.senderId !== userId
-                            ? "bg-blue-500 rounded-r-xl mr-auto "
+                            ? "bg-[#512da8] rounded-r-xl mr-auto "
                             : "bg-gray-300 rounded-l-xl ml-auto"
-                        } w-fit pt-2 px-2 flex-col flex justify-center items-center font-semibold rounded-b-xl mb-1 max-w-[60%] min-w-[5%]`}
+                        } w-fit pt-2 px-2 flex-col flex justify-center items-center rounded-b-xl mb-1 max-w-[60%] min-w-[5%]`}
                       >
                         <p
-                          className={`flex justify-center items-center px-3 py-2 text-start text-md rounded-b-xl ${
+                          className={`flex justify-center items-center px-3 py-2 text-start font-semibold text-md rounded-b-xl ${
                             m.senderId !== userId
-                              ? "bg-blue-400 rounded-r-xl"
+                              ? "bg-[#5c6bc0] rounded-r-xl text-white"
                               : "bg-gray-200 rounded-l-xl"
                           }`}
                         >
                           {m.message}
                         </p>
                         <span
-                          className={`text-[10px] m${
-                            m.senderId !== userId ? "r" : "l"
-                          }-auto text-gray-700 p-[2px]`}
+                          className={`text-[9px] m${
+                            m.senderId !== userId
+                              ? "r-auto text-white"
+                              : "l-auto text-black"
+                          } p-[2px] font-semibold`}
                         >
                           {formattedHours}:{minute + " " + ampm}
                         </span>
@@ -223,9 +232,12 @@ const Dashboard = () => {
                 </p>
               )
             ) : (
-              <p className="flex justify-center items-center h-full text-2xl font-bold text-gray-400">
-                &larr; Select a friend to text them
-              </p>
+              <div className="flex justify-center items-center h-full text-2xl font-bold text-gray-400">
+                <div className="group flex gap-1 cursor-pointer hover:text-black">
+                  <span className="group-hover:-translate-x-1">&larr;</span>
+                  <p>Select a friend to text them</p>
+                </div>
+              </div>
             )}
           </div>
 
